@@ -1,52 +1,66 @@
-const mongoose = require("mongoose");
-const bcrypt = require("bcrypt");
-const jwt = require("jsonwebtoken");
+// Importing required libraries
+const mongoose = require("mongoose"); // Mongoose is used for MongoDB object modeling
+const bcrypt = require("bcrypt"); // bcrypt is used for hashing passwords
+const jwt = require("jsonwebtoken"); // jwt is used for generating authentication tokens
 
+// Defining the schema for the User collection in MongoDB
 const userSchema = new mongoose.Schema({
+  // Full name is stored as a nested object with firstname and lastname
   fullname: {
     firstname: {
-      type: String,
-      required: true,
-      minlength: [3, "First Name should be at least three characters long"],
+      type: String, // Firstname must be a string
+      required: true, // It is mandatory
+      minlength: [3, "First Name should be at least three characters long"], // Minimum length validation
     },
     lastname: {
-      type: String,
-      minlength: [3, "Last Name should be at least three characters long"],
+      type: String, // Lastname must be a string
+      minlength: [3, "Last Name should be at least three characters long"], // Minimum length validation
     },
   },
+  // Email field
   email: {
-    type: String,
-    required: true,
-    unique: true,
-    minlength: [5, "Email should be at least five characters long"],
+    type: String, // Email must be a string
+    required: true, // It is mandatory
+    unique: true, // The email should be unique in the database
+    minlength: [5, "Email should be at least five characters long"], // Minimum length validation
   },
+  // Password field
   password: {
-    type: String,
-    required: true,
-    select: false,
-    minlength: [8, "Password should be at least eight characters long"],
+    type: String, // Password must be a string
+    required: true, // It is mandatory
+    select: false, // This field will not be selected by default in queries for security
+    minlength: [8, "Password should be at least eight characters long"], // Minimum length validation
   },
+  // Optional field for socket ID (useful for real-time applications like chats)
   socketId: {
-    type: String,
+    type: String, // Socket ID must be a string
   },
 });
 
-// Generate an authentication token for the user
+// Instance method to generate an authentication token for a user
 userSchema.methods.generateAuthToken = function () {
-  const token = jwt.sign({ _id: this._id }, process.env.JWT_SECRET, { expiresIn: "1h" });
-  return token;
+  // The `this` keyword refers to the current user instance
+  const token = jwt.sign(
+    { _id: this._id }, // Payload: user ID
+    process.env.JWT_SECRET, // Secret key from environment variables
+    { expiresIn: "1h" } // Token expires in 1 hour
+  );
+  return token; // Return the generated token
 };
 
-// Compare provided password with hashed password
+// Instance method to compare the provided password with the stored hashed password
 userSchema.methods.comparePassword = async function (password) {
-  return await bcrypt.compare(password, this.password);
+  // `this.password` contains the hashed password of the user
+  return await bcrypt.compare(password, this.password); // bcrypt.compare checks if passwords match
 };
 
-// Hash a password before storing it
+// Static method to hash a password (used before saving a new user)
 userSchema.statics.hashPassword = async function (password) {
-  return await bcrypt.hash(password, 10);
+  return await bcrypt.hash(password, 10); // Hash the password with a salt factor of 10
 };
 
-const UserModel = mongoose.model("User", userSchema);
+// Creating the User model using the schema
+const UserModel = mongoose.model("User", userSchema); // `User` is the name of the model/collection
 
+// Exporting the UserModel for use in other parts of the application
 module.exports = UserModel;
