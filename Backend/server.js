@@ -3,7 +3,7 @@ const http = require("http"); // Node.js built-in module for creating an HTTP se
 const app = require("./app"); // Import the Express application instance
 
 // Use environment variable for port or default to 3000
-const port = process.env.PORT || 3000; 
+const port = process.env.PORT || 3000;
 // `process.env.PORT` allows the port to be set dynamically (e.g., in production environments like Heroku)
 
 // Create the HTTP server
