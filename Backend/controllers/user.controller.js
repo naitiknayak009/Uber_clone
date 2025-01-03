@@ -1,5 +1,7 @@
 // Importing necessary modules
+const UserModel = require("../models/user.model");
 const userModel = require("../models/user.model"); // Module to interact with the user data in the database
+const { use } = require("../routes/user.routes");
 const userService = require("../services/user.service"); // Service layer to handle business logic for user operations
 const { validationResult } = require("express-validator"); // Middleware to validate the request data
 
@@ -41,3 +43,40 @@ module.exports.registerUser = async (req, res, next) => {
     res.status(500).json({ error: "Internal server error" });
   }
 };
+module.exports.loginUser = async (req, res, next) => {
+ 
+    // Step 1: Validate the request body using the validation rules
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+    // Step 2: Extract required data from the request body
+    const { email, password } = req.body;
+    const user = await UserModel.findOne({ email }).select("+password");
+    if(!user){
+      return res.status(401).json({error: "User not found"});
+    }
+    const isMatch = await user.comparePassword(password);
+    if(!isMatch){
+      return res.status(401).json({error: "Invalid password"});
+    }
+    const token = user.generateAuthToken();
+    res.status(200).json({token, user});
+  }
+module.exports.getUserProfile = async (req, res, next) => {
+  try {
+    // Step 1: Extract the user ID from the request object (added by the authentication middleware)
+    const userId = req.user._id;
+
+    // Step 2: Fetch the user profile data using the user ID
+    const user = await userService.getUserById(userId);
+    // The getUserById method in the userService fetches the user data based on the ID
+
+    // Step 3: Respond with the user profile data
+    res.status(200).json(user); // 200 indicates success
+  } catch (err) {
+    // Error handling: log the error and respond with a 500 Internal Server Error
+    console.error("Error fetching user profile:", err);
+    res.status(500).json({ error: "Internal server error" });
+  }
+}
