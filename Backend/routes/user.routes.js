@@ -3,6 +3,7 @@ const express = require("express"); // Express framework for building web APIs
 const router = express.Router(); // Express Router to define routes
 const { body } = require("express-validator"); // `express-validator` for request validation
 const userController = require("../controllers/user.controller"); // Controller to handle business logic for user routes
+const authenticate = require("../middleware/auth.middleware"); // Middleware to authenticate requests
 
 // Define the route for user registration
 router.post(
@@ -48,6 +49,6 @@ router.post(
 
   userController.loginUser // Controller function to handle the request after validation
 );
-router.get('./profile', userController.getUserProfile);
-// Export the router for use in the application
+router.get("/profile",authenticate.authUser,userController.getUserProfile);
+
 module.exports = router;

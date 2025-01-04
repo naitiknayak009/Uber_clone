@@ -12,21 +12,37 @@ module.exports.createUser = async ({
   if (!Firstname || !Lastname || !email || !password) {
     // Check if any required field is missing
     throw new Error("Please fill all the required fields");
-    // If a required field is missing, throw an error
-    // The error can be caught by the calling function and handled appropriately
   }
 
   // Step 2: Create the user in the database
   const user = await userModel.create({
-    // The `create` method is provided by Mongoose to add a new document to the database
     fullname: { 
-      firstname: Firstname, // Map the first name to the `firstname` field
-      lastname: Lastname,   // Map the last name to the `lastname` field
+      firstname: Firstname,
+      lastname: Lastname,
     },
-    email,     // Store the user's email
-    password,  // Store the user's hashed password
+    email,
+    password,
   });
 
   // Step 3: Return the created user object
+  return user;
+};
+
+// Function to get a user by ID
+module.exports.getUserById = async (userId) => {
+  // Step 1: Validate the user ID
+  if (!userId) {
+    throw new Error("User ID is required");
+  }
+
+  // Step 2: Fetch the user from the database using the user ID
+  const user = await userModel.findById(userId);
+  
+  // Step 3: Check if the user exists
+  if (!user) {
+    throw new Error("User not found");
+  }
+
+  // Step 4: Return the user object
   return user;
 };

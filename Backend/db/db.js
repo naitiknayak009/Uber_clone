@@ -6,8 +6,7 @@ function connectToDb() {
   // Use Mongoose's connect method to connect to the database
   mongoose
     .connect(process.env.DB_CONNECT, {
-      useNewUrlParser: true, // Use the new URL string parser for MongoDB connections (avoids deprecation warnings)
-      useUnifiedTopology: true, // Use the new server discovery and monitoring engine (avoids deprecation warnings)
+      
     })
     .then(() => {
       // If the connection is successful, log a success message
