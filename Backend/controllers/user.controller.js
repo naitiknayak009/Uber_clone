@@ -1,9 +1,8 @@
 // Importing necessary modules
 const UserModel = require("../models/user.model");
-const userModel = require("../models/user.model"); // Module to interact with the user data in the database
-const { use } = require("../routes/user.routes");
 const userService = require("../services/user.service"); // Service layer to handle business logic for user operations
 const { validationResult } = require("express-validator"); // Middleware to validate the request data
+const BlacklistToken = require("../models/blacklistToken.model");
 
 // Function to handle user registration
 module.exports.registerUser = async (req, res, next) => {
@@ -17,6 +16,10 @@ module.exports.registerUser = async (req, res, next) => {
 
     // Step 2: Extract required data from the request body
     const { fullname, email, password } = req.body;
+    const isUserExist = await UserModel.findOne({ email });
+    if (isUserExist) {
+      return res.status(400).json({ error: "User already exists" });
+    }
 
     // Step 3: Hash the user's password for secure storage
     const hashPassword = await userModel.hashPassword(password);
@@ -60,6 +63,7 @@ module.exports.loginUser = async (req, res, next) => {
     return res.status(401).json({ error: "Invalid Email or password" });
   }
   const token = user.generateAuthToken();
+  res.cookie("token", token);
   res.status(200).json({ token, user });
 };
 module.exports.getUserProfile = async (req, res, next) => {
@@ -78,4 +82,11 @@ module.exports.getUserProfile = async (req, res, next) => {
     console.error("Error fetching user profile:", err);
     res.status(500).json({ error: "Internal server error" });
   }
+};
+module.exports.logoutUser = async (req, res, next) => {
+  res.clearCookie("token");
+  const token = req.cookies.token || req.headers.authorization.split(" ")[1];
+  await BlacklistToken.create({ token });
+  console.log(token);
+  res.status(200).json({ message: "Logged out successfully" });
 };

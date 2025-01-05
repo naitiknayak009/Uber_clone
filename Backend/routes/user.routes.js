@@ -50,5 +50,5 @@ router.post(
   userController.loginUser // Controller function to handle the request after validation
 );
 router.get("/profile",authenticate.authUser,userController.getUserProfile);
-
+router.get("/logout",authenticate.authUser,userController.logoutUser);
 module.exports = router;

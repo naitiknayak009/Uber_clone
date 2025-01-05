@@ -43,7 +43,7 @@ userSchema.methods.generateAuthToken = function () {
   const token = jwt.sign(
     { _id: this._id }, // Payload: user ID
     process.env.JWT_SECRET, // Secret key from environment variables
-    { expiresIn: "1h" } // Token expires in 1 hour
+    { expiresIn: "24h" } // Token expires in 1 hour
   );
   return token; // Return the generated token
 };

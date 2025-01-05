@@ -9,6 +9,7 @@ const connectToDb = require("./db/db"); // Function to connect to the database
 const userRoutes = require("./routes/user.routes"); // User-related API routes
 const UserModel = require("./models/user.model");
 const cookieParser = require('cookie-parser');
+const captainRoutes = require("./routes/captain.routes"); // Captain-related API routes
 
 // Initialize the Express application
 const app = express();
@@ -23,7 +24,8 @@ app.use(cookieParser());
 connectToDb(); // Establishes a connection to the database
 
 // API routes
-app.use("/api", userRoutes); 
+app.use("/api/user", userRoutes); 
+app.use("/api/captain", captainRoutes);
 // All user-related routes are prefixed with `/api`, e.g., `/api/register`
 
 // Default route
